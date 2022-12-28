@@ -2,13 +2,23 @@ package main
 
 import (
 	"fmt"
-	"github.com/kbinani/screenshot"
 	"image/png"
 	"os"
+	"path/filepath"
 	"time"
+
+	"github.com/kbinani/screenshot"
 )
 
 func capture() {
+
+	// get current path
+	ex, err := os.Executable()
+	if err != nil {
+		fmt.Println(err)
+	}
+	exPath := filepath.Dir(ex)
+
 	n := screenshot.NumActiveDisplays()
 
 	for i := 0; i < n; i++ {
@@ -21,11 +31,15 @@ func capture() {
 		now := time.Now()
 		dateString := fmt.Sprintf("%d%02d%02d-%02d%02d%02d", now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second())
 		fileName := fmt.Sprintf("%s-%d.png", dateString, i)
-		file, _ := os.Create(fileName)
+
+		writeFilePath := filepath.Join(exPath, fileName)
+
+		file, _ := os.Create(writeFilePath)
 		defer file.Close()
 		png.Encode(file, img)
 
-		fmt.Printf("#%d : %v \"%s\"\n", i, bounds, fileName)
+		fmt.Printf("write file into path: %s", writeFilePath)
+		// fmt.Printf("#%d : %v \"%s\"\n", i, bounds, fileName)
 	}
 }
 
